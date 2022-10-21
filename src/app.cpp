@@ -49,7 +49,8 @@ Description:
 #include <HLU/hlu.h>
 
 // imgui state
-static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+static ImVec4 background_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+static float b = 0.5f;
 
 /* Haptic device and rendering context handles. */
 static HHD ghHD = HD_INVALID_HANDLE;
@@ -94,15 +95,6 @@ int main(int argc, char *argv[]) {
     glutInitWindowSize(500, 500);
     glutCreateWindow("Mehdi's App");
 
-    // Set glut callback functions.
-    // glutDisplayFunc(glutDisplay);
-    // glutReshapeFunc(glutReshape);
-    // glutIdleFunc(glutIdle);
-
-    // glutCreateMenu(glutMenu);
-    // glutAddMenuEntry("Quit", 0);
-    // glutAttachMenu(GLUT_RIGHT_BUTTON);
-
     // Provide a cleanup routine for handling application exit.
     atexit(exitHandler);
 
@@ -120,18 +112,15 @@ int main(int argc, char *argv[]) {
     // ImGui::StyleColorsLight();
 
     ImGui_ImplGLUT_Init();
-    ///////////////////////////////////////////////////////////////////////////////////////
-    ImGui_ImplGLUT_InstallFuncs();  ////// this function disables haptic!!!!!!!!!! //////
-    ///////////////////////////////////////////////////////////////////////////////////////
-    // ImGui_ImplOpenGL2_Init();
+    ImGui_ImplGLUT_InstallFuncs();
 
     glutDisplayFunc(glutDisplay);
     glutReshapeFunc(glutReshape);
     glutIdleFunc(glutIdle);
 
-    glutCreateMenu(glutMenu);
-    glutAddMenuEntry("Quit", 0);
-    glutAttachMenu(GLUT_RIGHT_BUTTON);
+    // glutCreateMenu(glutMenu);
+    // glutAddMenuEntry("Quit", 0);
+    // glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     ImGui_ImplOpenGL2_Init();
 
@@ -150,7 +139,7 @@ int main(int argc, char *argv[]) {
 *******************************************************************************/
 void drawObject() {
     // glColor3f(1.0, 0.0, 0.0);
-    glutSolidCone(.5, .8, 32, 32);
+    glutSolidCone(b, .8, 32, 32);
 }
 
 /*******************************************************************************
@@ -347,7 +336,9 @@ void drawMenu() {
     ImGui::Begin("Mehdi's App");
 
     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-    ImGui::ColorEdit3("clear color", (float *)&clear_color);
+    ImGui::ColorEdit3("Background Color", (float *)&background_color);
+
+        ImGui::SliderFloat("Cone Radius", &b, 0.0f, 1.0f);
 
     ImGui::End();
 }
@@ -360,17 +351,8 @@ void drawSceneGraphics() {
     ImGui_ImplOpenGL2_NewFrame();
     ImGui_ImplGLUT_NewFrame();
 
-    ////////// menu bottons, sliders, and etc
+    // menu bottons, sliders, and etc
     drawMenu();
-    // static float f = 0.0f;
-
-    // ImGui::Begin("Mehdi's App");
-
-    // ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-    // ImGui::ColorEdit3("clear color", (float *)&clear_color);
-
-    // ImGui::End();
-    ////////// menu bottons, sliders, and etc
 
     // Rendering
     ImGui::Render();
@@ -379,9 +361,10 @@ void drawSceneGraphics() {
 
     glutPostRedisplay();
 
-    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    glClearColor(background_color.x * background_color.w, background_color.y * background_color.w, background_color.z * background_color.w, background_color.w);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     // Draw 3D cursor at haptic device position.
     drawCursor();
 
@@ -397,8 +380,8 @@ void drawSceneGraphics() {
     // glEnd();
 
     // Draw a sphere using OpenGL.
-    // glutSolidSphere(0.5, 32, 32);
     drawObject();
+
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 
     glutPostRedisplay();
@@ -422,7 +405,6 @@ void drawSceneHaptics() {
     hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, gShapeId);
 
     // Use OpenGL commands to create geometry.
-    // glutSolidSphere(0.5, 32, 32);
     drawObject();
 
     // End the shape.
