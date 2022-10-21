@@ -48,9 +48,13 @@ Description:
 #include <HL/hl.h>
 #include <HLU/hlu.h>
 
-// imgui state
+// imgui variables
 static ImVec4 background_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 static float b = 0.5f;
+static float c = 0.6f;
+static float cHeight = 0.6f;
+
+static int selectedPrimitiveItem = 0;
 
 /* Haptic device and rendering context handles. */
 static HHD ghHD = HD_INVALID_HANDLE;
@@ -139,7 +143,17 @@ int main(int argc, char *argv[]) {
 *******************************************************************************/
 void drawObject() {
     // glColor3f(1.0, 0.0, 0.0);
-    glutSolidCone(b, .8, 32, 32);
+    switch (selectedPrimitiveItem) {
+        case 0:
+            glutSolidCone(c, cHeight, 32, 32);
+            break;
+        case 1:
+            glutSolidSphere(b, 32, 32);
+
+        default:
+            break;
+    }
+    // glutSolidCone(b, .8, 32, 32);
 }
 
 /*******************************************************************************
@@ -331,14 +345,28 @@ void updateWorkspace() {
  Add imgui menu here
 *******************************************************************************/
 void drawMenu() {
-    static float f = 0.0f;
+    // static float f = 0.0f;
 
     ImGui::Begin("Mehdi's App");
 
-    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+    // ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
     ImGui::ColorEdit3("Background Color", (float *)&background_color);
+    // dropdown menu
+    const static char *primitiveList[]{"Cone", "Sphere"};
+    ImGui::Combo("Primitives", &selectedPrimitiveItem, primitiveList, IM_ARRAYSIZE(primitiveList), 0);
 
-        ImGui::SliderFloat("Cone Radius", &b, 0.0f, 1.0f);
+    switch (selectedPrimitiveItem) {
+        case 0:
+            ImGui::SliderFloat("Cone Radius", &c, 0.0f, 1.0f);
+            ImGui::SliderFloat("Cone Height", &cHeight, 0.0f, 1.0f);
+            break;
+        case 1:
+            ImGui::SliderFloat("Sphere Radius", &b, 0.0f, 1.0f);
+            break;
+
+        default:
+            break;
+    }
 
     ImGui::End();
 }
